@@ -29,5 +29,5 @@ func main() {
 
 	routes.SetupRoutes(app, customerHandler, adminHandler)
 
-	app.Listen(":3000")
+	app.Listen(":8080")
 }
