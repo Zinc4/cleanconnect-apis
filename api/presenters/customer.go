@@ -131,11 +131,11 @@ func GetUserBillsSuccessResponse(data []entities.Bill) fiber.Map {
 }
 
 type PaymentBills struct {
-	BillNo uint   `json:"bill_no"`
-	Name   string `json:"name"`
-	Amount int    `json:"amount"`
-	Date   string `json:"date"`
-	Status string `json:"status"`
+	BillNo  uint   `json:"bill_no"`
+	Amount  int    `json:"amount"`
+	Date    string `json:"date"`
+	DueDate string `json:"due_date"`
+	Status  string `json:"status"`
 }
 
 func GetUserPaymentBillsSuccessResponse(data []entities.Payment) fiber.Map {
@@ -143,11 +143,11 @@ func GetUserPaymentBillsSuccessResponse(data []entities.Payment) fiber.Map {
 
 	for _, payment := range data {
 		bill := PaymentBills{
-			BillNo: payment.BillID,
-			Name:   payment.Bill.Customer.FirstName + " " + payment.Bill.Customer.LastName,
-			Amount: payment.Bill.Amount + payment.Bill.AdditionalBill.Price,
-			Date:   payment.CreatedAt.Format("2006-01-02"),
-			Status: payment.Status,
+			BillNo:  payment.BillID,
+			Amount:  payment.Bill.Amount + payment.Bill.AdditionalBill.Price,
+			Date:    payment.CreatedAt.Format("2006-01-02"),
+			DueDate: payment.Bill.BillDue.Format("2006-01-02"),
+			Status:  payment.Status,
 		}
 		bills = append(bills, bill)
 	}
@@ -156,5 +156,35 @@ func GetUserPaymentBillsSuccessResponse(data []entities.Payment) fiber.Map {
 		"status":  true,
 		"message": "bills found successfully",
 		"data":    bills,
+	}
+}
+
+type UserLogs struct {
+	ID         uint      `json:"id"`
+	CreatedAt  time.Time `json:"created_at"`
+	ChangeType string    `json:"change_type"`
+	OldValue   string    `json:"old_value"`
+	NewValue   string    `json:"new_value"`
+	Status     string    `json:"status"`
+}
+
+func GetUserLogsSuccessResponse(data []entities.Log) fiber.Map {
+	var logs []UserLogs
+
+	for _, log := range data {
+		logs = append(logs, UserLogs{
+			ID:         log.ID,
+			CreatedAt:  log.CreatedAt,
+			ChangeType: log.ChangeType,
+			OldValue:   log.OldValue,
+			NewValue:   log.NewValue,
+			Status:     log.Status,
+		})
+	}
+
+	return fiber.Map{
+		"status":  true,
+		"message": "logs found successfully",
+		"data":    logs,
 	}
 }

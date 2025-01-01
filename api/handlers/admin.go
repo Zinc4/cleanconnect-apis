@@ -280,3 +280,27 @@ func (h *AdminHandler) Webhook(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 
 }
+
+func (h *AdminHandler) GetTotalDashboard(c *fiber.Ctx) error {
+	totalUser, totalPendingPayment, totalSuccessPayment, err := h.adminService.GetTotalDashboard()
+	if err != nil {
+		return err
+	}
+	return c.Status(200).JSON(fiber.Map{
+		"status":  true,
+		"message": "total dashboard found successfully",
+		"data":    fiber.Map{"totalUser": totalUser, "totalPendingPayment": totalPendingPayment, "totalSuccessPayment": totalSuccessPayment},
+	})
+}
+
+func (h *AdminHandler) GetTotalBillsManagement(c *fiber.Ctx) error {
+	totalBills, totalAmountBills, totalSuccessPayment, totalPendingPayment, err := h.adminService.GetTotalBillsManagement()
+	if err != nil {
+		return err
+	}
+	return c.Status(200).JSON(fiber.Map{
+		"status":  true,
+		"message": "total bills found successfully",
+		"data":    fiber.Map{"totalBills": totalBills, "totalAmountBills": totalAmountBills, "totalSuccessPayment": totalSuccessPayment, "totalPendingPayment": totalPendingPayment},
+	})
+}

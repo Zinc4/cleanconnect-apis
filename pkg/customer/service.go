@@ -22,6 +22,12 @@ type CustomerService interface {
 	GetUserBills(userID uint) ([]entities.Bill, error)
 	PayBill(payment entities.Payment) error
 	GetAllUserPaymentBills(userID uint) ([]entities.Payment, error)
+	CreateLog(log entities.Log) error
+	GetLogsByUser(userID uint) ([]entities.Log, error)
+	GetTotalUserBills(userID uint) (int64, error)
+	GetAmountSuccessfulBills(userID uint) (int64, error)
+	GetActiveBills(userID uint) (int64, error)
+	GetAmountPendingPaymentBills(userID uint) (int64, error)
 }
 
 type customerService struct {
@@ -117,4 +123,28 @@ func (s *customerService) PayBill(payment entities.Payment) error {
 
 func (s *customerService) GetAllUserPaymentBills(userID uint) ([]entities.Payment, error) {
 	return s.repository.GetAllUserPaymentBills(userID)
+}
+
+func (s *customerService) CreateLog(log entities.Log) error {
+	return s.repository.CreateLog(log)
+}
+
+func (s *customerService) GetLogsByUser(userID uint) ([]entities.Log, error) {
+	return s.repository.GetLogsByUser(userID)
+}
+
+func (s *customerService) GetTotalUserBills(userID uint) (int64, error) {
+	return s.repository.GetTotalUserBills(userID)
+}
+
+func (s *customerService) GetAmountSuccessfulBills(userID uint) (int64, error) {
+	return s.repository.GetAmountSuccessfulBills(userID)
+}
+
+func (s *customerService) GetActiveBills(userID uint) (int64, error) {
+	return s.repository.GetActiveBills(userID)
+}
+
+func (s *customerService) GetAmountPendingPaymentBills(userID uint) (int64, error) {
+	return s.repository.GetAmountPendingPaymentBills(userID)
 }

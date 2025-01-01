@@ -110,6 +110,76 @@ func (h *CustomerHandler) UpdateCustomer(c *fiber.Ctx) error {
 		Image:     request.Image,
 	}
 
+	recentCustomer, err := h.customerService.GetUser(userID)
+	if err != nil {
+		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+	}
+
+	if recentCustomer.FirstName != request.FirstName {
+		log := entities.Log{
+			ChangeType: "Update First Name",
+			OldValue:   recentCustomer.FirstName,
+			NewValue:   request.FirstName,
+			UserID:     userID,
+			Status:     "success",
+		}
+		if err := h.customerService.CreateLog(log); err != nil {
+			return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+		}
+	}
+
+	if recentCustomer.LastName != request.LastName {
+		log := entities.Log{
+			ChangeType: "Update Last Name",
+			OldValue:   recentCustomer.LastName,
+			NewValue:   request.LastName,
+			UserID:     userID,
+			Status:     "success",
+		}
+		if err := h.customerService.CreateLog(log); err != nil {
+			return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+		}
+	}
+
+	if recentCustomer.Email != request.Email {
+		log := entities.Log{
+			ChangeType: "Update Email",
+			OldValue:   recentCustomer.Email,
+			NewValue:   request.Email,
+			UserID:     userID,
+			Status:     "success",
+		}
+		if err := h.customerService.CreateLog(log); err != nil {
+			return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+		}
+	}
+
+	if recentCustomer.Address != request.Address {
+		log := entities.Log{
+			ChangeType: "Update Address",
+			OldValue:   recentCustomer.Address,
+			NewValue:   request.Address,
+			UserID:     userID,
+			Status:     "success",
+		}
+		if err := h.customerService.CreateLog(log); err != nil {
+			return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+		}
+	}
+
+	if recentCustomer.NoHP != request.NoHP {
+		log := entities.Log{
+			ChangeType: "Update No HP",
+			OldValue:   recentCustomer.NoHP,
+			NewValue:   request.NoHP,
+			UserID:     userID,
+			Status:     "success",
+		}
+		if err := h.customerService.CreateLog(log); err != nil {
+			return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+		}
+	}
+
 	if err := h.customerService.UpdateCustomer(userID, customer); err != nil {
 		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
 	}
@@ -207,4 +277,49 @@ func (h *CustomerHandler) GetCustomerPaymentBills(c *fiber.Ctx) error {
 	}
 	return c.Status(200).JSON(presenters.GetUserPaymentBillsSuccessResponse(bills))
 
+}
+
+func (h *CustomerHandler) GetLogsByUser(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(uint)
+	logs, err := h.customerService.GetLogsByUser(userID)
+	if err != nil {
+		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+	}
+	return c.Status(200).JSON(presenters.GetUserLogsSuccessResponse(logs))
+}
+
+func (h *CustomerHandler) GetTotalUserDashboard(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(uint)
+	totalBills, err := h.customerService.GetTotalUserBills(userID)
+	if err != nil {
+		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+	}
+
+	totalAmount, err := h.customerService.GetAmountSuccessfulBills(userID)
+	if err != nil {
+		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+	}
+
+	activeBills, err := h.customerService.GetActiveBills(userID)
+	if err != nil {
+		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "data": fiber.Map{"totalBills": totalBills, "totalAmount": totalAmount, "activeBills": activeBills}})
+
+}
+
+func (h *CustomerHandler) GetTotalHistory(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(uint)
+	totalAmount, err := h.customerService.GetAmountSuccessfulBills(userID)
+	if err != nil {
+		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+	}
+
+	pendingAmount, err := h.customerService.GetAmountPendingPaymentBills(userID)
+	if err != nil {
+		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "success", "data": fiber.Map{"totalAmount": totalAmount, "pendingAmount": pendingAmount}})
 }

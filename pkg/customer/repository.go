@@ -21,6 +21,12 @@ type CustomerRepository interface {
 	GetUserBills(userID uint) ([]entities.Bill, error)
 	PayBill(payment entities.Payment) error
 	GetAllUserPaymentBills(userID uint) ([]entities.Payment, error)
+	CreateLog(log entities.Log) error
+	GetLogsByUser(userID uint) ([]entities.Log, error)
+	GetTotalUserBills(userID uint) (int64, error)
+	GetAmountSuccessfulBills(userID uint) (int64, error)
+	GetActiveBills(userID uint) (int64, error)
+	GetAmountPendingPaymentBills(userID uint) (int64, error)
 }
 
 type customerRepository struct {
@@ -135,4 +141,62 @@ func (r *customerRepository) GetAllUserPaymentBills(userID uint) ([]entities.Pay
 		return payments, err
 	}
 	return payments, nil
+}
+
+func (r *customerRepository) CreateLog(log entities.Log) error {
+	if err := r.db.Create(&log).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *customerRepository) GetLogsByUser(userID uint) ([]entities.Log, error) {
+	var logs []entities.Log
+	if err := r.db.Where("user_id = ?", userID).Order("created_at DESC").Find(&logs).Error; err != nil {
+		return logs, err
+	}
+	return logs, nil
+}
+
+func (r *customerRepository) GetTotalUserBills(userID uint) (int64, error) {
+	var count int64
+	if err := r.db.Model(&entities.Bill{}).Where("customer_id = ?", userID).Count(&count).Error; err != nil {
+		return count, err
+	}
+	return count, nil
+}
+
+func (r *customerRepository) GetAmountSuccessfulBills(userID uint) (int64, error) {
+	var totalAmount int64
+	if err := r.db.Model(&entities.Bill{}).
+		Joins("JOIN payments ON payments.bill_id = bills.id").
+		Where("bills.customer_id = ?", userID).
+		Where("payments.status = ?", "paid").
+		Select("SUM(bills.amount)").
+		Find(&totalAmount).Error; err != nil {
+		return totalAmount, err
+	}
+	return totalAmount, nil
+
+}
+
+func (r *customerRepository) GetActiveBills(userID uint) (int64, error) {
+	var count int64
+	if err := r.db.Model(&entities.Bill{}).Where("customer_id = ?", userID).Where("status = ?", "Belum Dibayar").Count(&count).Error; err != nil {
+		return count, err
+	}
+	return count, nil
+}
+
+func (r *customerRepository) GetAmountPendingPaymentBills(userID uint) (int64, error) {
+	var totalAmount int64
+	if err := r.db.Model(&entities.Payment{}).
+		Joins("JOIN bills ON bills.id = payments.bill_id").
+		Where("bills.customer_id = ?", userID).
+		Where("payments.status = ?", "pending").
+		Select("SUM(bills.amount)").
+		Find(&totalAmount).Error; err != nil {
+		return totalAmount, err
+	}
+	return totalAmount, nil
 }

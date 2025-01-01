@@ -17,6 +17,8 @@ type AdminService interface {
 	GetPendingUsersPayments() ([]entities.Payment, error)
 	GetSuccessPayments() ([]entities.Payment, error)
 	GetAllPaymentBills() ([]entities.Payment, error)
+	GetTotalDashboard() (int64, int64, int64, error)
+	GetTotalBillsManagement() (int64, int64, int64, int64, error)
 }
 
 type adminService struct {
@@ -81,4 +83,48 @@ func (s *adminService) GetSuccessPayments() ([]entities.Payment, error) {
 
 func (s *adminService) GetAllPaymentBills() ([]entities.Payment, error) {
 	return s.repository.GetAllPaymentBills()
+}
+
+func (s *adminService) GetTotalDashboard() (int64, int64, int64, error) {
+	totalUser, err := s.repository.GetTotalUsers()
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	totalPendingPayment, err := s.repository.GetTotalPendingPayment()
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	totalSuccessPayment, err := s.repository.GetTotalAmountSuccessPayment()
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	return totalUser, totalPendingPayment, totalSuccessPayment, nil
+}
+
+func (s *adminService) GetTotalBillsManagement() (int64, int64, int64, int64, error) {
+	totalBills, err := s.repository.GetTotalBills()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	totalAmountBills, err := s.repository.GetTotalAmountBills()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	totalSuccessPayment, err := s.repository.GetTotalAmountSuccessPayment()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	totalPendingPayment, err := s.repository.GetPendingAmountPayments()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	return totalBills, totalAmountBills, totalSuccessPayment, totalPendingPayment, nil
+
 }

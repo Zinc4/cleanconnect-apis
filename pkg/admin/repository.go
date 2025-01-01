@@ -21,6 +21,12 @@ type AdminRepository interface {
 	GetPendingUsersPayments() ([]entities.Payment, error)
 	GetSuccessPayments() ([]entities.Payment, error)
 	GetAllPaymentBills() ([]entities.Payment, error)
+	GetTotalUsers() (int64, error)
+	GetTotalAmountSuccessPayment() (int64, error)
+	GetTotalPendingPayment() (int64, error)
+	GetTotalBills() (int64, error)
+	GetTotalAmountBills() (int64, error)
+	GetPendingAmountPayments() (int64, error)
 }
 
 type adminRepository struct {
@@ -135,4 +141,64 @@ func (r *adminRepository) GetAllPaymentBills() ([]entities.Payment, error) {
 		return nil, err
 	}
 	return payments, nil
+}
+
+func (r *adminRepository) GetTotalUsers() (int64, error) {
+	var count int64
+	if err := r.db.Model(&entities.Customer{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *adminRepository) GetTotalAmountSuccessPayment() (int64, error) {
+	var totalAmount int64
+	// Correctly write the SQL query using GORM's `Raw` method for custom SQL queries
+	err := r.db.Raw(`
+		SELECT COALESCE(SUM(bills.amount), 0) AS total_amount
+		FROM payments
+		JOIN bills ON payments.bill_id = bills.id
+		WHERE payments.status = ?`, "paid").Scan(&totalAmount).Error
+	if err != nil {
+		return 0, err
+	}
+	return totalAmount, nil
+}
+
+func (r *adminRepository) GetTotalPendingPayment() (int64, error) {
+	var count int64
+	if err := r.db.Model(&entities.Payment{}).Where("status = ?", "pending").Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *adminRepository) GetTotalBills() (int64, error) {
+	var count int64
+	if err := r.db.Model(&entities.Bill{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *adminRepository) GetTotalAmountBills() (int64, error) {
+	var totalAmount int64
+	if err := r.db.Model(&entities.Bill{}).Select("SUM(amount)").Scan(&totalAmount).Error; err != nil {
+		return 0, err
+	}
+	return totalAmount, nil
+}
+
+func (r *adminRepository) GetPendingAmountPayments() (int64, error) {
+	var totalAmount int64
+	// Correctly write the SQL query using GORM's `Raw` method for custom SQL queries
+	err := r.db.Raw(`
+		SELECT COALESCE(SUM(bills.amount), 0) AS total_amount
+		FROM payments
+		JOIN bills ON payments.bill_id = bills.id
+		WHERE payments.status = ?`, "pending").Scan(&totalAmount).Error
+	if err != nil {
+		return 0, err
+	}
+	return totalAmount, nil
 }
