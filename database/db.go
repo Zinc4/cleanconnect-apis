@@ -15,8 +15,8 @@ var DB *gorm.DB
 func Connect() {
 	var err error
 
-	dsn := "host=pgsql user=postgres password=Zeto.2003 dbname=ceco port=5432 sslmode=disable"
-	// dsn := "host=ep-green-base-a2cboio4.eu-central-1.pg.koyeb.app user=koyeb-adm password=fHuCSk0PiFa7 dbname=koyebdb"
+	// dsn := "host=pgsql user=postgres password=Zeto.2003 dbname=ceco port=5432 sslmode=disable"
+	dsn := "host=ep-green-base-a2cboio4.eu-central-1.pg.koyeb.app user=koyeb-adm password=fHuCSk0PiFa7 dbname=koyebdb"
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
