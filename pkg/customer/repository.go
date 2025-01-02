@@ -172,8 +172,8 @@ func (r *customerRepository) GetAmountSuccessfulBills(userID uint) (int64, error
 		Joins("JOIN payments ON payments.bill_id = bills.id").
 		Where("bills.customer_id = ?", userID).
 		Where("payments.status = ?", "paid").
-		Select("SUM(bills.amount)").
-		Find(&totalAmount).Error; err != nil {
+		Select("COALESCE(SUM(bills.amount), 0)").
+		Scan(&totalAmount).Error; err != nil {
 		return totalAmount, err
 	}
 	return totalAmount, nil
@@ -194,8 +194,8 @@ func (r *customerRepository) GetAmountPendingPaymentBills(userID uint) (int64, e
 		Joins("JOIN bills ON bills.id = payments.bill_id").
 		Where("bills.customer_id = ?", userID).
 		Where("payments.status = ?", "pending").
-		Select("SUM(bills.amount)").
-		Find(&totalAmount).Error; err != nil {
+		Select("COALESCE(SUM(bills.amount), 0)").
+		Scan(&totalAmount).Error; err != nil {
 		return totalAmount, err
 	}
 	return totalAmount, nil
