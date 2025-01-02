@@ -304,3 +304,11 @@ func (h *AdminHandler) GetTotalBillsManagement(c *fiber.Ctx) error {
 		"data":    fiber.Map{"totalBills": totalBills, "totalAmountBills": totalAmountBills, "totalSuccessPayment": totalSuccessPayment, "totalPendingPayment": totalPendingPayment},
 	})
 }
+
+func (h *AdminHandler) GetNotifications(c *fiber.Ctx) error {
+	notifications, err := h.adminService.GetNotifications()
+	if err != nil {
+		return err
+	}
+	return c.Status(200).JSON(presenters.GetNotificationsSuccessResponse(notifications))
+}

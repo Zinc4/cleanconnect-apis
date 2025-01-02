@@ -3,6 +3,7 @@ package handlers
 import (
 	"clean-connect/api/presenters"
 	"clean-connect/config"
+	"clean-connect/pkg/admin"
 	"clean-connect/pkg/customer"
 	"clean-connect/pkg/entities"
 	"errors"
@@ -12,11 +13,13 @@ import (
 
 type CustomerHandler struct {
 	customerService customer.CustomerService
+	adminService    admin.AdminService
 }
 
-func NewCustomerHandler(service customer.CustomerService) *CustomerHandler {
+func NewCustomerHandler(customerService customer.CustomerService, adminService admin.AdminService) *CustomerHandler {
 	return &CustomerHandler{
-		customerService: service,
+		customerService: customerService,
+		adminService:    adminService,
 	}
 }
 
@@ -258,6 +261,17 @@ func (h *CustomerHandler) PayBill(c *fiber.Ctx) error {
 	}
 
 	if err := h.customerService.PayBill(payment); err != nil {
+		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
+	}
+
+	notif := entities.Notif{
+		Notification: "User Payment Received",
+		UserID:       userID,
+		Username:     bill.Customer.FirstName + " " + bill.Customer.LastName,
+		Amount:       bill.Amount,
+	}
+
+	if err := h.adminService.CreateNotification(notif); err != nil {
 		return c.Status(500).JSON(presenters.CustomerErrorResponse(err))
 	}
 

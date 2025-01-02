@@ -29,7 +29,7 @@ func Connect() {
 	log.Println("connected")
 	DB.Logger = logger.Default.LogMode(logger.Info)
 
-	err = DB.AutoMigrate(&entities.Customer{}, &entities.Bill{}, &entities.Payment{}, &entities.AdditionalBill{}, &entities.Log{})
+	err = DB.AutoMigrate(&entities.Customer{}, &entities.Bill{}, &entities.Payment{}, &entities.AdditionalBill{}, &entities.Log{}, &entities.Notif{})
 	if err != nil {
 		log.Fatal("Database migration failed", err)
 	}

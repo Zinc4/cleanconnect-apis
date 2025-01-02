@@ -19,6 +19,8 @@ type AdminService interface {
 	GetAllPaymentBills() ([]entities.Payment, error)
 	GetTotalDashboard() (int64, int64, int64, error)
 	GetTotalBillsManagement() (int64, int64, int64, int64, error)
+	CreateNotification(notification entities.Notif) error
+	GetNotifications() ([]entities.Notif, error)
 }
 
 type adminService struct {
@@ -127,4 +129,12 @@ func (s *adminService) GetTotalBillsManagement() (int64, int64, int64, int64, er
 
 	return totalBills, totalAmountBills, totalSuccessPayment, totalPendingPayment, nil
 
+}
+
+func (s *adminService) CreateNotification(notification entities.Notif) error {
+	return s.repository.CreateNotification(notification)
+}
+
+func (s *adminService) GetNotifications() ([]entities.Notif, error) {
+	return s.repository.GetNotifications()
 }

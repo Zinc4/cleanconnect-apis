@@ -2,6 +2,7 @@ package presenters
 
 import (
 	"clean-connect/pkg/entities"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -197,5 +198,35 @@ func GetPaymentSuccessResponse(data entities.Payment) fiber.Map {
 		"status":  true,
 		"message": "payment found successfully",
 		"data":    Payment{ID: data.ID, BillID: data.BillID, CustomerID: data.Bill.CustomerID, Status: data.Status, Image: data.Image, Name: data.Bill.Customer.FirstName + " " + data.Bill.Customer.LastName},
+	}
+}
+
+type Notification struct {
+	ID           uint      `json:"id"`
+	Notification string    `json:"notification"`
+	Username     string    `json:"username"`
+	UserID       uint      `json:"user_id"`
+	Amount       int       `json:"amount"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
+func GetNotificationsSuccessResponse(data []entities.Notif) fiber.Map {
+	var notifications []Notification
+
+	for _, notification := range data {
+		notifications = append(notifications, Notification{
+			ID:           notification.ID,
+			Notification: notification.Notification,
+			Username:     notification.Username,
+			UserID:       notification.UserID,
+			Amount:       notification.Amount,
+			CreatedAt:    notification.CreatedAt,
+		})
+	}
+
+	return fiber.Map{
+		"status":  true,
+		"message": "notifications found successfully",
+		"data":    notifications,
 	}
 }

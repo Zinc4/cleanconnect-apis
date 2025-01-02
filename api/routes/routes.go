@@ -35,6 +35,7 @@ func SetupRoutes(app *fiber.App, hu *handlers.CustomerHandler, ha *handlers.Admi
 	admin.Get("/users", middlewares.AdminOnly(), hu.GetCustomers)
 	admin.Put("/users/:id", middlewares.AdminOnly(), hu.UpdateCustomer)
 	admin.Delete("/users/:id", middlewares.AdminOnly(), hu.DeleteCustomer)
+	admin.Get("/profile", middlewares.AdminOnly(), hu.GetCustomer)
 
 	admin.Get("/bills", middlewares.SuperAdminOnly(), ha.GetBills)
 	admin.Get("/bills/:id", middlewares.AdminOnly(), ha.GetBill)
@@ -49,5 +50,6 @@ func SetupRoutes(app *fiber.App, hu *handlers.CustomerHandler, ha *handlers.Admi
 	admin.Get("/payment/verify/:bill_id", middlewares.AdminOnly(), ha.VerifyPayment)
 	admin.Get("/total-dashboard", middlewares.AdminOnly(), ha.GetTotalDashboard)
 	admin.Get("/total-bills", middlewares.AdminOnly(), ha.GetTotalBillsManagement)
+	admin.Get("/notifications", middlewares.AdminOnly(), ha.GetNotifications)
 	// admin.Get("/bills", middlewares.AdminOnly(), ha.GetUsersBills)
 }

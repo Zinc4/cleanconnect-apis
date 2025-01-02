@@ -27,6 +27,8 @@ type AdminRepository interface {
 	GetTotalBills() (int64, error)
 	GetTotalAmountBills() (int64, error)
 	GetPendingAmountPayments() (int64, error)
+	CreateNotification(notification entities.Notif) error
+	GetNotifications() ([]entities.Notif, error)
 }
 
 type adminRepository struct {
@@ -201,4 +203,19 @@ func (r *adminRepository) GetPendingAmountPayments() (int64, error) {
 		return 0, err
 	}
 	return totalAmount, nil
+}
+
+func (r *adminRepository) CreateNotification(notification entities.Notif) error {
+	if err := r.db.Create(&notification).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *adminRepository) GetNotifications() ([]entities.Notif, error) {
+	var notifications []entities.Notif
+	if err := r.db.Order("created_at DESC").Find(&notifications).Error; err != nil {
+		return nil, err
+	}
+	return notifications, nil
 }

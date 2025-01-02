@@ -17,11 +17,10 @@ func main() {
 	app := fiber.New()
 
 	customerRepo := customer.NewCustomerRepository(database.DB)
-	customerService := customer.NewCustomerService(customerRepo)
-	customerHandler := handlers.NewCustomerHandler(customerService)
-
 	adminRepo := admin.NewAdminRepository(database.DB)
+	customerService := customer.NewCustomerService(customerRepo)
 	adminService := admin.NewAdminService(adminRepo)
+	customerHandler := handlers.NewCustomerHandler(customerService, adminService)
 	adminHandler := handlers.NewAdminHandler(adminService, customerService)
 
 	scheleduler := admin.NewScheduler(adminService)
