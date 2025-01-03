@@ -35,7 +35,7 @@ func SendVerificationEmail(email, token string) error {
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
 
-	verificationLink := fmt.Sprintf("https://cleanconnect-app-336q.vercel.app//verify/%s", token)
+	verificationLink := fmt.Sprintf("https://cleanconnect-app-336q.vercel.app/verify/%s", token)
 	message := []byte("Subject: Email Verification\n\n" +
 		"Please click the following link to verify your email address:\n" +
 		verificationLink)
